@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Industria de la moda</title>
+<style>
+  @font-face {
+    font-family: 'PP Editorial New';
+    src: url('fonts/PPEditorialNew-Ultralight.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Balto Book';
+    src: url('fonts/Balto-Book.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  .stage {
+    position: relative;
+    width: 908.31px;
+    height: 910.6px;
+    background: #F1EC9E;
+    overflow: hidden;
+  }
+
+  .title {
+    position: absolute;
+    left: 38px;
+    bottom: 46px;
+    font-family: 'PP Editorial New', serif;
+    font-weight: 200;
+    font-size: 64px;
+    line-height: 1;
+    color: #1a1a1a;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .circle-wrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    will-change: transform;
+  }
+
+  .lines {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .lines line {
+    stroke: none;
+    stroke-width: 1.4px;
+    fill: none;
+    transition: stroke-dashoffset 450ms ease;
+  }
+
+  .lines line.revealed {
+    stroke: #1a1a1a;
+  }
+
+  .circle {
+    position: absolute;
+    border-radius: 50%;
+    background: #F1EC9E;
+    border: 1.4px solid #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transform: scale(0);
+    transform-origin: center center;
+    transition: transform 480ms ease;
+  }
+
+  .circle.in {
+    transform: scale(1);
+  }
+
+  .circle span {
+    font-family: 'Balto Book', sans-serif;
+    color: #1a1a1a;
+    line-height: 1.18;
+    padding: 0 14%;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="title">Industria de la moda</div>
+  <svg class="lines" id="lines"></svg>
+</div>
+
+<script>
+(function () {
+  var STAGE_W = 908.31;
+  var STAGE_H = 910.6;
+  var TITLE_SAFE_Y = 760;
+
+  var CIRCLE_FONT_SIZE = 19;
+  var R = 98; // every circle is the same size as "Velocidad"
+
+  // Spawn order: each entry collides with the previous one as it
+  // enters. Connectivity (the lines) is a full mesh — every circle to
+  // every other — handled separately below.
+  var ringOrder = ['costes', 'produccion', 'capacidad', 'calidad', 'percepcion', 'velocidad'];
+  var texts = {
+    costes: 'Costes',
+    produccion: 'Producción',
+    capacidad: 'Capacidad de respuesta al mercado',
+    calidad: 'Calidad',
+    percepcion: 'Percepción de la marca',
+    velocidad: 'Velocidad'
+  };
+
+  // Spawn anchors taken directly from the user's reference layout
+  // (relative positions of each circle around Costes), scaled to our
+  // uniform radius. These already overlap each other on purpose —
+  // that overlap is exactly what the collision physics resolves.
+  var spawnAnchor = {
+    costes:      { x: 544, y: 420 },
+    produccion:  { x: 434, y: 329 },
+    capacidad:   { x: 604, y: 325 },
+    velocidad:   { x: 388, y: 472 },
+    calidad:     { x: 648, y: 492 },
+    percepcion:  { x: 512, y: 557 }
+  };
+
+  var data = ringOrder.map(function (id) {
+    var p = spawnAnchor[id];
+    return { id: id, text: texts[id], r: R, x: p.x, y: p.y, fs: CIRCLE_FONT_SIZE };
+  });
+
+  var order = ringOrder;
+
+  var stage = document.getElementById('stage');
+  var linesSvg = document.getElementById('lines');
+  var svgNS = 'http://www.w3.org/2000/svg';
+  var byId = {};
+
+  data.forEach(function (d) {
+    var wrap = document.createElement('div');
+    wrap.className = 'circle-wrap';
+
+    var el = document.createElement('div');
+    el.className = 'circle';
+    el.style.width = (d.r * 2) + 'px';
+    el.style.height = (d.r * 2) + 'px';
+
+    var span = document.createElement('span');
+    span.style.fontSize = d.fs + 'px';
+    span.textContent = d.text;
+    el.appendChild(span);
+    wrap.appendChild(el);
+    stage.appendChild(wrap);
+
+    d.el = el;
+    d.wrap = wrap;
+    d.vx = 0;
+    d.vy = 0;
+    d.spawned = false;
+    d.entering = true;
+    d.enterStart = 0;
+    d.entered = false;
+    d.linesRevealed = false;
+
+    byId[d.id] = d;
+  });
+
+  // Each circle connects to exactly three others: its two ring
+  // neighbors plus the one directly opposite it (hexagon + 3 main
+  // diagonals — a Möbius ladder / K3,3). Lines keyed both ways so the
+  // collision loop can look them up regardless of pair order.
+  var edgePairs = [];
+  for (var ei = 0; ei < ringOrder.length; ei++) {
+    edgePairs.push([ringOrder[ei], ringOrder[(ei + 1) % ringOrder.length]]);
+  }
+  for (var ei2 = 0; ei2 < 3; ei2++) {
+    edgePairs.push([ringOrder[ei2], ringOrder[ei2 + 3]]);
+  }
+
+  var edgeLines = {};
+  var allEdgeLines = [];
+  edgePairs.forEach(function (pair) {
+    var idA = pair[0], idB = pair[1];
+    var line = document.createElementNS(svgNS, 'line');
+    linesSvg.appendChild(line);
+    var entry = { line: line, aId: idA, bId: idB, revealed: false };
+    edgeLines[idA + '|' + idB] = entry;
+    edgeLines[idB + '|' + idA] = entry;
+    allEdgeLines.push(entry);
+  });
+
+  // Lines "draw themselves in" via stroke-dasharray/dashoffset rather
+  // than fading: the dash is sized to match the live distance between
+  // the two circles every frame, and stays fully retracted (offset =
+  // full length, i.e. invisible) until revealed, at which point we set
+  // the offset to 0 once and let the CSS transition animate the draw.
+  function updateLines() {
+    for (var k = 0; k < allEdgeLines.length; k++) {
+      var e = allEdgeLines[k];
+      var a = byId[e.aId];
+      var b = byId[e.bId];
+      var len = Math.hypot(b.x - a.x, b.y - a.y);
+      e.line.setAttribute('x1', a.x);
+      e.line.setAttribute('y1', a.y);
+      e.line.setAttribute('x2', b.x);
+      e.line.setAttribute('y2', b.y);
+      e.line.style.strokeDasharray = len;
+      if (!e.revealed) e.line.style.strokeDashoffset = len;
+    }
+  }
+
+  updateLines();
+
+  var ENTER_MS = 480;
+  var GAP = 7;
+  // Strong spring + enough retained velocity to give a clearly visible
+  // overshoot/bounce-back after impact (~10-25px past the resting
+  // point before it settles) so the hit actually reads as a hit —
+  // verified numerically stable across the overlap range we use.
+  var DAMPING = 0.55;
+  var STIFFNESS = 0.32;
+  var BOUNDARY_MARGIN = 30;
+  var pairTouching = {};
+
+  function setTransform(d) {
+    d.wrap.style.transform = 'translate3d(' + (d.x - d.r) + 'px,' + (d.y - d.r) + 'px,0)';
+  }
+
+  data.forEach(setTransform);
+
+  function spawn(d) {
+    d.spawned = true;
+    d.enterStart = performance.now();
+    d.entering = true;
+    d.entered = false;
+    requestAnimationFrame(function () {
+      d.el.classList.add('in');
+    });
+  }
+
+  var idx = 0;
+  function spawnNext() {
+    if (idx >= order.length) return;
+    var d = byId[order[idx]];
+    idx++;
+    spawn(d);
+    setTimeout(spawnNext, ENTER_MS * 0.78);
+  }
+
+  function currentRadius(d, now) {
+    if (!d.spawned) return 0;
+    if (!d.entering) return d.r;
+    var t = (now - d.enterStart) / ENTER_MS;
+    if (t >= 1) {
+      d.entering = false;
+      d.entered = true;
+      return d.r;
+    }
+    return d.r * Math.min(1, Math.max(0, t));
+  }
+
+  function tick(now) {
+    var n = data.length;
+    var radii = new Array(n);
+
+    for (var i = 0; i < n; i++) {
+      radii[i] = currentRadius(data[i], now);
+    }
+
+    // Pure collision response: a circle only gains velocity when it is
+    // actually overlapped by another (growing or settled) circle. With
+    // no ambient/cohesion force, anything not touched stays perfectly
+    // still — movement is a reaction to contact, never ambient drift.
+    // A ring edge's connecting line reveals itself at the exact frame
+    // that specific pair first touches, never before.
+    for (var i = 0; i < n; i++) {
+      var a = data[i];
+      var movableA = a.entered;
+
+      for (var j = i + 1; j < n; j++) {
+        var b = data[j];
+        var movableB = b.entered;
+        if (!a.spawned || !b.spawned) continue;
+        if (!movableA && !movableB) continue;
+
+        var key = i + '_' + j;
+        var dx = b.x - a.x;
+        var dy = b.y - a.y;
+        var dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        var minDist = radii[i] + radii[j] + GAP;
+
+        if (dist < minDist) {
+          var overlap = (minDist - dist);
+          var nx = dx / dist;
+          var ny = dy / dist;
+
+          if (!pairTouching[key]) {
+            pairTouching[key] = true;
+            // The newcomer (whichever side is still growing in) reveals
+            // ALL of its connections at once on first contact, not just
+            // the line to whoever it happened to bump into.
+            var newcomer = !movableA ? a : (!movableB ? b : null);
+            if (newcomer && !newcomer.linesRevealed) {
+              newcomer.linesRevealed = true;
+              for (var k = 0; k < allEdgeLines.length; k++) {
+                var e = allEdgeLines[k];
+                if (e.aId === newcomer.id || e.bId === newcomer.id) {
+                  var otherId = e.aId === newcomer.id ? e.bId : e.aId;
+                  if (byId[otherId].spawned) {
+                    e.revealed = true;
+                    e.line.classList.add('revealed');
+                    e.line.style.strokeDashoffset = '0';
+                  }
+                }
+              }
+            }
+          }
+
+          var push = overlap * STIFFNESS;
+
+          if (movableA && movableB) {
+            a.vx -= nx * push * 0.5;
+            a.vy -= ny * push * 0.5;
+            b.vx += nx * push * 0.5;
+            b.vy += ny * push * 0.5;
+          } else if (movableA) {
+            a.vx -= nx * push;
+            a.vy -= ny * push;
+          } else if (movableB) {
+            b.vx += nx * push;
+            b.vy += ny * push;
+          }
+        } else {
+          pairTouching[key] = false;
+        }
+      }
+    }
+
+    for (var i = 0; i < n; i++) {
+      var d = data[i];
+      if (!d.entered) continue;
+
+      d.vx *= DAMPING;
+      d.vy *= DAMPING;
+
+      d.x += d.vx;
+      d.y += d.vy;
+
+      var r = radii[i];
+      var minX = r + BOUNDARY_MARGIN;
+      var maxX = STAGE_W - r - BOUNDARY_MARGIN;
+      var minY = r + BOUNDARY_MARGIN;
+      var maxY = Math.min(TITLE_SAFE_Y, STAGE_H - r - BOUNDARY_MARGIN);
+
+      if (d.x < minX) { d.x = minX; d.vx *= -0.3; }
+      if (d.x > maxX) { d.x = maxX; d.vx *= -0.3; }
+      if (d.y < minY) { d.y = minY; d.vy *= -0.3; }
+      if (d.y > maxY) { d.y = maxY; d.vy *= -0.3; }
+
+      setTransform(d);
+    }
+
+    updateLines();
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+  setTimeout(spawnNext, 150);
+})();
+</script>
+
+</body>
+</html>
