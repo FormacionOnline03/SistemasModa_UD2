@@ -7,7 +7,7 @@
   <style>
   @font-face {
     font-family: 'BaltoBold';
-    src: url('../fonts/BaltoBold.woff2') format('woff2');
+    src: url('../../fonts/BaltoBold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
   }
@@ -16,7 +16,7 @@
   <style>
   @font-face {
     font-family: 'BaltoBold';
-    src: url('../fonts/BaltoBold.woff2') format('woff2');
+    src: url('../../fonts/BaltoBold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
   }
@@ -49,8 +49,8 @@
 
   /* ── SIDEBAR ── */
   .sidebar {
-    width: 540px;
-    min-width: 540px;
+    width: 440px;
+    min-width: 440px;
     padding: 64px 44px 44px;
     display: flex;
     flex-direction: column;
@@ -83,16 +83,14 @@
 
   .sidebar-image-placeholder {
     width: 100%;
-    height: 320px;
-    max-height: 320px;
+    min-height: 440px;
     background: #f4f4f4;
-    border-radius: 12px;
+    border-radius: 20px;
     margin-top: auto;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
   }
 
   .sidebar-image-placeholder img {
@@ -192,14 +190,9 @@
   }
 
   .mc-options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
-  }
-
-  .mc-option {
-    flex: 0 1 calc(33.333% - 12px);
   }
 
   .mc-option {
@@ -468,11 +461,11 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-tag" style="width:60px;height:12px;background:#caaeff;border-radius:2px;margin-bottom:28px;flex-shrink:0;"></div>
-    <div class="sidebar-label">Desafío 03</div>
-    <h1 class="sidebar-title">Herramientas de control de ventas</h1>
-    <p style="margin-top: 18px; font-size: 24px; line-height: 1.6; color: #444;">En la moda actual, las decisiones se apoyan en el uso de herramientas que permiten controlar las ventas, optimizar el inventario y entender el comportamiento del consumidor. ¿Recuerdas cuáles son algunas de ellas?</p>
-    <div class="sidebar-image-placeholder"><img src="../Recursos/Imagenes/image-Diapo16.jpg" alt="Herramientas de control de ventas"></div>
+    <div class="sidebar-tag"></div>
+    <div class="sidebar-label">Desafío 05</div>
+    <h1 class="sidebar-title">¿Qué indica realmente atención?</h1>
+    <p style="margin-top: 18px; font-size: 24px; line-height: 1.6; color: #444;">Imagina que te encuentras analizando el rendimiento de varios contenidos publicados por un creador en redes sociales y necesitas identificar cuáles funcionaron mejor.</p>
+    <div class="sidebar-image-placeholder"><img src="placeholder.svg" alt="Contenido visual de rendimiento"></div>
   </aside>
 
   <!-- MAIN -->
@@ -480,12 +473,14 @@
 
     <!-- LEFT: Multiple choice -->
     <div class="col-mc">
-      <div class="mc-title">Selecciona todas las herramientas de control, análisis y optimización de ventas.</div>
+      <div class="mc-title">¿Qué señales indican que el contenido ha captado y sostenido la atención?</div>
       <div class="mc-instruction">Puedes seleccionar más de una respuesta</div>
 
       <div class="mc-options" id="mcOptions"></div>
 
-      <div class="mc-feedback" id="mcFeedback"></div>
+      <div class="mc-feedback" id="mcFeedback">
+        Un plan fuerte elimina lo irrelevante. Es importante saber qué percepción tienen las personas usuarias de la información que se solicita, qué fricciones encuentran y cómo influye la solicitud de información en la tasa de abandono.
+      </div>
 
       <div class="mc-buttons">
         <button class="btn-check" id="mcCheckBtn">Comprobar</button>
@@ -501,11 +496,12 @@
    MULTIPLE CHOICE
 ════════════════════════════════ */
 const MC_OPTIONS = [
-  { id: 'm1', text: 'TPV (Punto de Venta)',                      correct: true  },
-  { id: 'm2', text: 'Sistemas RFID',                              correct: true  },
-  { id: 'm3', text: 'CRM (gestión de clientes)',                  correct: true  },
-  { id: 'm4', text: 'Business Intelligence (BI)',                  correct: true  },
-  { id: 'm5', text: 'Campañas de marketing digital',              correct: false },
+  { id: 'm1', text: 'El contenido se guarda.', correct: true },
+  { id: 'm2', text: 'El contenido genera comentarios.', correct: true },
+  { id: 'm3', text: 'El perfil tiene muchos seguidores.', correct: false },
+  { id: 'm4', text: 'Los usuarios repiten los vídeos.', correct: true },
+  { id: 'm5', text: 'El creador publica con frecuencia.', correct: false },
+  { id: 'm6', text: 'Los vídeos se ven hasta el final.', correct: true },
 ];
 
 let mcLocked = false;
@@ -579,20 +575,20 @@ document.getElementById('mcCheckBtn').addEventListener('click', () => {
 
   if (allCorrectSelected) {
     fb.classList.add('ok');
-    fb.textContent = '¡Así es! Has identificado las herramientas que permiten registrar, analizar y comprender las ventas en una empresa de moda. Además, recuerda que la industria de la moda también utiliza sistemas integrados de gestión (ERP) y la inteligencia artificial y el análisis predictivo para estos fines.';
+    fb.textContent = '¡Muy bien! Has identificado las señales de atención más relevantes en el contenido.';
     mcLocked = true;
   } else if (selectedIncorrect > 0 && selectedCorrect === 0) {
     fb.classList.add('fail');
-    fb.textContent = '¡Piénsalo de nuevo! En este contexto debes identificar herramientas que permitan: registrar transacciones, analizar datos y gestionar inventario y clientes. ¡Inténtalo nuevamente!';
+    fb.textContent = '¡Piénsalo de nuevo! Observa cómo interactúa el usuario con el contenido: ¿se queda? ¿repite? ¿comenta? Estas son señales que demuestran la atención e interés de los usuarios.';
   } else if (selectedIncorrect > 0) {
     fb.classList.add('partial');
-    fb.textContent = '¡Vas por buen camino! Todavía no has identificado todas las herramientas; recuerda que estas herramientas permiten, entre otras cosas, registrar transacciones, analizar datos, gestionar inventarios, etc. Reflexiona y repasa los contenidos de la unidad y sigue intentándolo.';
+    fb.textContent = '¡Vas por buen camino! Si bien has seleccionado algunos indicadores correctos, tienes que ajustar tu respuesta. Reflexiona sobre qué acciones indican atención e interés e inténtalo nuevamente.';
   } else if (selectedCorrect > 0) {
     fb.classList.add('partial');
-    fb.textContent = '¡Vas por buen camino! Todavía no has identificado todas las herramientas; recuerda que estas herramientas permiten, entre otras cosas, registrar transacciones, analizar datos, gestionar inventarios, etc. Reflexiona y repasa los contenidos de la unidad y sigue intentándolo.';
+    fb.textContent = '¡Vas por buen camino! Si bien has seleccionado algunos indicadores correctos, tienes que ajustar tu respuesta. Reflexiona sobre qué acciones indican atención e interés e inténtalo nuevamente.';
   } else {
     fb.classList.add('fail');
-    fb.textContent = '¡Piénsalo de nuevo! En este contexto debes identificar herramientas que permitan: registrar transacciones, analizar datos y gestionar inventario y clientes. ¡Inténtalo nuevamente!';
+    fb.textContent = '¡Piénsalo de nuevo! Observa cómo interactúa el usuario con el contenido: ¿se queda? ¿repite? ¿comenta? Estas son señales que demuestran la atención e interés de los usuarios.';
   }
 });
 

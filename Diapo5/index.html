@@ -7,6 +7,12 @@
 <title>Industria de la moda</title>
 <style>
   @font-face {
+    font-family: 'BaltoBold';
+    src: url('../fonts/BaltoBold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+  }
+  @font-face {
     font-family: 'PP Editorial New';
     src: url('fonts/PPEditorialNew-Ultralight.woff') format('woff');
     font-weight: 200;
@@ -107,7 +113,7 @@
 <body>
 
 <div class="stage" id="stage">
-  <div class="title">Industria de la moda</div>
+  <div class="title">Producción en moda</div>
   <svg class="lines" id="lines"></svg>
 </div>
 
@@ -123,10 +129,9 @@
   // Spawn order: each entry collides with the previous one as it
   // enters. Connectivity (the lines) is a full mesh — every circle to
   // every other — handled separately below.
-  var ringOrder = ['costes', 'produccion', 'capacidad', 'calidad', 'percepcion', 'velocidad'];
+  var ringOrder = ['costes', 'capacidad', 'calidad', 'percepcion', 'velocidad'];
   var texts = {
     costes: 'Costes',
-    produccion: 'Producción',
     capacidad: 'Capacidad de respuesta al mercado',
     calidad: 'Calidad',
     percepcion: 'Percepción de la marca',
@@ -139,7 +144,6 @@
   // that overlap is exactly what the collision physics resolves.
   var spawnAnchor = {
     costes:      { x: 544, y: 420 },
-    produccion:  { x: 434, y: 329 },
     capacidad:   { x: 604, y: 325 },
     velocidad:   { x: 388, y: 472 },
     calidad:     { x: 648, y: 492 },
@@ -195,8 +199,8 @@
   for (var ei = 0; ei < ringOrder.length; ei++) {
     edgePairs.push([ringOrder[ei], ringOrder[(ei + 1) % ringOrder.length]]);
   }
-  for (var ei2 = 0; ei2 < 3; ei2++) {
-    edgePairs.push([ringOrder[ei2], ringOrder[ei2 + 3]]);
+  for (var ei2 = 0; ei2 < Math.floor(ringOrder.length / 2); ei2++) {
+    edgePairs.push([ringOrder[ei2], ringOrder[ei2 + Math.ceil(ringOrder.length / 2)]]);
   }
 
   var edgeLines = {};

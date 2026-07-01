@@ -3,11 +3,20 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta charset="utf-8"/>
-<title>Tarea 01 â€“ Proceso de InvestigaciÃ³n</title>
-    <style>
+<title>Tarea 01 – Proceso de Investigación</title>
+  <style>
   @font-face {
     font-family: 'BaltoBold';
-    src: url('../fonts/BaltoBold.woff2') format('woff2');
+    src: url('../../fonts/BaltoBold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+  }
+
+</style>
+  <style>
+  @font-face {
+    font-family: 'BaltoBold';
+    src: url('../../fonts/BaltoBold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
   }
@@ -31,9 +40,9 @@
     overflow: hidden;
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ════════════════════════════════
      SCREENS
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  ════════════════════════════════ */
   .screen {
     position: fixed;
     inset: 0;
@@ -48,9 +57,9 @@
     transform: translateY(16px);
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ════════════════════════════════
      SHARED BUTTON
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  ════════════════════════════════ */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -81,9 +90,9 @@
     flex-shrink: 0;
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     SCREEN 1 â€” INTRO
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* ════════════════════════════════
+     SCREEN 1 — INTRO
+  ════════════════════════════════ */
   #screenIntro {
     padding: 100px;
     gap: 0;
@@ -124,7 +133,7 @@
   }
 
   .sidebar-label {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 400;
     color: var(--black);
     margin-bottom: 16px;
@@ -133,7 +142,7 @@
 
   .sidebar-title {
     font-family: var(--font-balto);
-    font-size: 46px;
+    font-size: 38px;
     font-weight: 700;
     line-height: 1.1;
   }
@@ -174,17 +183,17 @@
     margin-top: 24px;
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     SCREEN 2 â€” TASK
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* ════════════════════════════════
+     SCREEN 2 — TASK
+  ════════════════════════════════ */
   #screenTask {
     align-items: stretch;
   }
 
   /* Sidebar task */
   .sidebar-task {
-    width: 440px;
-    min-width: 440px;
+    width: 340px;
+    min-width: 340px;
     padding: 64px 44px 44px;
     display: flex;
     flex-direction: column;
@@ -194,7 +203,7 @@
   }
 
   .sidebar-desc {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 400;
     line-height: 1.6;
     color: #444;
@@ -207,7 +216,7 @@
   }
 
   .progress-label {
-    font-size: 16px;
+    font-size: 13px;
     color: #999;
     margin-bottom: 10px;
   }
@@ -229,7 +238,7 @@
 
   .progress-count {
     margin-top: 8px;
-    font-size: 16px;
+    font-size: 13px;
     color: #999;
   }
 
@@ -297,9 +306,9 @@
     flex-shrink: 0;
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ════════════════════════════════
      CARDS
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  ════════════════════════════════ */
   .card {
     background: var(--gray);
     border-radius: var(--radius);
@@ -348,9 +357,9 @@
     display: block;
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ════════════════════════════════
      DROP ZONES
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  ════════════════════════════════ */
   .drop-zone {
     border-radius: var(--radius);
     padding: 16px 22px;
@@ -429,9 +438,9 @@
     75%      { transform: translateX(6px); }
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ════════════════════════════════
      RESPONSIVE
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  ════════════════════════════════ */
   @media (max-width: 1400px) {
     .sidebar-intro { width: 480px; min-width: 480px; }
     .sidebar-task { width: 300px; min-width: 300px; padding: 48px 32px 32px; }
@@ -475,34 +484,6 @@
     .col-divider { width: 100%; height: 1px; margin: 24px 0; }
   }
 
-  #colLeft.done {
-    justify-content: center;
-    align-items: center;
-    padding-top: 0;
-  }
-
-  .success-box {
-    display: none;
-    padding: 24px 30px;
-    background: #1a7a4a;
-    border-radius: var(--radius);
-    color: #ffffff;
-    font-family: var(--font-balto);
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    align-items: center;
-    gap: 12px;
-  }
-  .success-box.visible {
-    display: flex;
-    animation: successIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
-  }
-  @keyframes successIn {
-    from { opacity: 0; transform: translateY(10px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
   @media (max-width: 540px) {
     .sidebar-title { font-size: 24px; }
     .btn { font-size: 17px; padding: 14px 24px; }
@@ -512,41 +493,70 @@
 </head>
 <body>
 
-<div class="screen" id="screenTask">
+<!-- ══════════════════════════════════════
+     SCREEN 1 · INTRO
+══════════════════════════════════════ -->
+<div class="screen" id="screenIntro">
+
+  <aside class="sidebar-intro">
+    <div class="sidebar-intro-top">
+      <div class="sidebar-tag"></div>
+      <div class="sidebar-label">Tarea 04</div>
+      <h1 class="sidebar-title">Conecta cada objetivo con la técnica correcta</h1>
+    </div>
+    <div class="sidebar-intro-bottom">
+      <img class="intro-img" src="placeholder.svg" alt="" aria-hidden="true" />
+    </div>
+  </aside>
+
+  <main class="intro-main">
+    <div class="intro-content">
+      <div class="intro-text">
+        <p>Saber elegir la técnica de investigación es sumamente importante. No todas las técnicas son adecuadas para todos los momentos de un proceso de investigación. Antes de continuar, Simón te propone repasar qué técnicas se alinean mejor según el objetivo.</p>
+      </div>
+      <button class="btn" id="startBtn">
+        Iniciar tarea
+        <svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="22.8082" cy="22.8082" r="22.5655" stroke="white" stroke-width="0.485281"/>
+          <path d="M17.4701 28.6316L28.6315 16.9848M28.6315 28.6316V16.9848H17.4701" stroke="white" stroke-width="2.4264"/>
+        </svg>
+      </button>
+    </div>
+  </main>
+
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2 · TASK
+══════════════════════════════════════ -->
+<div class="screen hidden" id="screenTask">
 
   <aside class="sidebar-task">
-    <div class="sidebar-tag" style="width:60px;height:12px;background:#caaeff;border-radius:2px;margin-bottom:28px;flex-shrink:0;"></div>
-    <div class="sidebar-label">Desafío 02</div>
-    <h1 class="sidebar-title">Las experiencias que construyen las marcas</h1>
-    <p class="sidebar-desc">Una vez que el producto llega al consumidor a través de los distintos canales, la clave deja de ser dónde se vende y pasa a ser cómo vive la experiencia el consumidor.<br><br>En la moda actual, las marcas no solo diseñan productos, sino también experiencias. Arrastra cada característica al tipo de experiencia que corresponda.</p>
+    <div class="sidebar-tag"></div>
+    <div class="sidebar-label">Tarea 04</div>
+    <h1 class="sidebar-title">Conecta cada objetivo con la técnica correcta</h1>
+    <p class="sidebar-desc">Arrastra cada objetivo a la técnica más adecuada.</p>
     <button class="btn" id="resetBtn" style="margin-top: 28px;">
       ↺ Reiniciar
     </button>
     <div class="sidebar-progress">
       <div class="progress-label">Progreso</div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-count" id="progressCount">0 de 6 completadas</div>
+      <div class="progress-count" id="progressCount">0 de 3 completadas</div>
     </div>
   </aside>
 
   <main class="task-main">
 
     <div class="col" id="colLeft">
-      <div class="success-box" id="successBox">
-        <svg width="24" height="24" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="white" stroke-width="1.5"/><path d="M6.5 11.5l3 3 6-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Desafío superado
-      </div>
     </div>
 
     <div class="col-divider"></div>
 
     <div class="col" id="colRight">
-      <div class="drop-zone empty" data-accept="fisic"><span class="drop-zone-label">Experiencia física</span></div>
-      <div class="drop-zone empty" data-accept="digit"><span class="drop-zone-label">Experiencia digital</span></div>
-      <div class="drop-zone empty" data-accept="tech"><span class="drop-zone-label">Experiencia tecnológica</span></div>
-      <div class="drop-zone empty" data-accept="excl"><span class="drop-zone-label">Experiencia de exclusividad</span></div>
-      <div class="drop-zone empty" data-accept="efim"><span class="drop-zone-label">Experiencia efímera</span></div>
-      <div class="drop-zone empty" data-accept="comun"><span class="drop-zone-label">Experiencia de comunidad</span></div>
+      <div class="drop-zone empty" data-accept="qual"><span class="drop-zone-label">Técnicas cualitativas (explorar y entender)</span></div>
+      <div class="drop-zone empty" data-accept="eval"><span class="drop-zone-label">Técnicas evaluativas (evaluar una solución)</span></div>
+      <div class="drop-zone empty" data-accept="quant"><span class="drop-zone-label">Técnicas cuantitativas (medir a gran escala)</span></div>
     </div>
 
   </main>
@@ -557,26 +567,33 @@
 const BUTTON_SVG = `<svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;display:block"><circle cx="22.8082" cy="22.8082" r="22.5655" stroke="black" stroke-width="0.485281"/><path d="M17.4701 28.6316L28.6315 16.9848M28.6315 28.6316V16.9848H17.4701" stroke="black" stroke-width="2.4264"/></svg>`;
 
 const ALL_CARDS = [
-  { id: 'c1', text: 'Eventos limitados o colecciones cápsula',                          category: 'excl'  },
-  { id: 'c2', text: 'Uso de IA, realidad aumentada o probadores virtuales',             category: 'tech'  },
-  { id: 'c3', text: 'Espacios temporales que generan urgencia',                         category: 'efim'  },
-  { id: 'c4', text: 'Compra online con contenido, interacción y recomendaciones',       category: 'digit' },
-  { id: 'c5', text: 'Relación emocional y sentimiento de pertenencia',                  category: 'comun' },
-  { id: 'c6', text: 'Contacto directo con el producto',                                 category: 'fisic' },
+  { id: 'c1', text: 'Realizar entrevistas para entender por qué los usuarios no usan la funcionalidad de ahorro.', category: 'qual' },
+  { id: 'c2', text: 'Realizar tests de usabilidad para detectar problemas en el flujo de onboarding una vez que lo hayamos rediseñado.', category: 'eval' },
+  { id: 'c3', text: 'Utilizar analítica digital para ahondar sobre en qué paso abandonan las personas usuarias.', category: 'quant' },
+  { id: 'c4', text: 'Enviar una encuesta a toda la base de personas usuarias para medir la satisfacción con la funcionalidad.', category: 'quant' },
+  { id: 'c5', text: 'Realizar entrevistas para comprender motivaciones y dudas sobre establecer metas de ahorro.', category: 'qual' },
+  { id: 'c6', text: 'Utilizar A/B testing para validar dos versiones del nuevo proceso de onboarding.', category: 'quant' },
 ];
 
 const PHASE_LABELS = {
-  fisic: 'Experiencia física',
-  digit: 'Experiencia digital',
-  tech:  'Experiencia tecnológica',
-  excl:  'Experiencia de exclusividad',
-  efim:  'Experiencia efímera',
-  comun: 'Experiencia de comunidad',
+  qual: 'Técnicas cualitativas (explorar y entender)',
+  eval: 'Técnicas evaluativas (evaluar una solución)',
+  quant: 'Técnicas cuantitativas (medir a gran escala)'
 };
 
 let draggedCard = null;
 
-/* —— Reset —— */
+/* ── Transition ── */
+document.getElementById('startBtn').addEventListener('click', () => {
+  document.getElementById('screenIntro').classList.add('hidden');
+  const task = document.getElementById('screenTask');
+  task.classList.remove('hidden');
+  renderCards([]);
+  attachZoneListeners();
+  updateProgress();
+});
+
+/* ── Reset ── */
 document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelectorAll('.drop-zone').forEach(zone => {
     zone.className = 'drop-zone empty';
@@ -586,7 +603,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   updateProgress();
 });
 
-/* —— Helpers —— */
+/* ── Helpers ── */
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -622,13 +639,14 @@ function renderCards(placedIds = []) {
 }
 
 function updateProgress() {
-  const zones = document.querySelectorAll('.drop-zone');
-  const filled = [...zones].filter(z => z.querySelectorAll('.placed-card').length >= 1).length;
-  document.getElementById('progressFill').style.width = (filled / zones.length * 100) + '%';
-  document.getElementById('progressCount').textContent = filled + ' de ' + zones.length + ' completadas';
-  const allDone = filled === zones.length;
-  document.getElementById('successBox').classList.toggle('visible', allDone);
-  document.getElementById('colLeft').classList.toggle('done', allDone);
+  const total = document.querySelectorAll('.drop-zone').length;
+  // A zone is "done" when all its cards are placed (check by counting placed vs expected)
+  const qualFull  = document.querySelector('[data-accept="qual"]')?.querySelectorAll('.placed-card').length >= 2;
+  const evalFull  = document.querySelector('[data-accept="eval"]')?.querySelectorAll('.placed-card').length >= 1;
+  const quantFull = document.querySelector('[data-accept="quant"]')?.querySelectorAll('.placed-card').length >= 3;
+  const filled = (qualFull ? 1 : 0) + (evalFull ? 1 : 0) + (quantFull ? 1 : 0);
+  document.getElementById('progressFill').style.width = (filled / total * 100) + '%';
+  document.getElementById('progressCount').textContent = filled + ' de ' + total + ' completadas';
 }
 
 function attachZoneListeners() {
@@ -643,12 +661,13 @@ function attachZoneListeners() {
       zone.classList.remove('over');
       if (!draggedCard) return;
 
-      const cardId     = draggedCard.dataset.id;
-      const accepts    = zone.dataset.accept;
-      const cardObj    = ALL_CARDS.find(c => c.id === cardId);
+      const cardId  = draggedCard.dataset.id;
+      const accepts = zone.dataset.accept;
+      const cardObj = ALL_CARDS.find(c => c.id === cardId);
       const cardCategory = cardObj?.category;
 
       if (cardCategory === accepts) {
+        // correct — append card into zone
         const placed = document.createElement('div');
         placed.className = 'placed-card';
         placed.dataset.id = cardId;
@@ -657,9 +676,11 @@ function attachZoneListeners() {
         zone.classList.remove('empty');
         zone.classList.add('filled');
         draggedCard.remove();
+        // trigger green flash
         requestAnimationFrame(() => placed.classList.add('correct-flash'));
         updateProgress();
       } else {
+        // wrong — flash red and reshuffle
         zone.classList.add('incorrect');
         setTimeout(() => {
           zone.classList.remove('incorrect');
@@ -670,10 +691,6 @@ function attachZoneListeners() {
     });
   });
 }
-
-renderCards([]);
-attachZoneListeners();
-updateProgress();
 </script>
 </body>
 </html>
