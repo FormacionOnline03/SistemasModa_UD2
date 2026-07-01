@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Países productores de moda</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #0d0d0d; overflow: hidden; }
+  :root {
+    --font:       'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-balto: 'BaltoBold', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+  .stage {
+    position: relative;
+    width: 100vw; height: 100vh;
+    background: #0d0d0d;
+    display: flex; flex-direction: column; align-items: center;
+    overflow: hidden;
+  }
+
+  /* title-fixed from Diapo8 */
+  .title {
+    position: relative; z-index: 2;
+    margin-top: 6vh;
+    font-family: var(--font-balto);
+    font-weight: 1000;
+    font-size: clamp(1.4rem, 2.8vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    text-align: center;
+  }
+  .description {
+    position: relative; z-index: 2;
+    margin-top: 2.2vh;
+    max-width: min(68ch, 82vw);
+    font-family: var(--font);
+    font-weight: 400;
+    font-size: 1.2rem;
+    letter-spacing: 0.015em;
+    color: #ffffff;
+    text-align: justify;
+    text-align-last: center;
+    line-height: 1.5;
+  }
+
+  /* Globe */
+  .globe-wrap {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    min-height: 0;
+  }
+  #gc {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: grab;
+  }
+  #gc:active { cursor: grabbing; }
+
+  /* Panel — square corners */
+  .panel {
+    position: fixed;
+    right: 2.4vw; top: 50%;
+    transform: translateY(-50%) translateX(18px);
+    width: clamp(270px, 26vw, 360px);
+    background: rgba(13,13,13,0.95);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 0;
+    padding: 18px 20px 20px;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+    pointer-events: none;
+  }
+  .panel.on {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    pointer-events: auto;
+  }
+  .panel-x {
+    position: absolute; top: 10px; right: 13px;
+    cursor: pointer;
+    font-family: var(--font); font-size: 13px;
+    color: #ffffff;
+    line-height: 1;
+  }
+  .panel-x:hover { opacity: 0.6; }
+
+  .panel-name {
+    font-family: var(--font-balto);
+    font-weight: 1000;
+    font-size: clamp(1.05rem, 1.5vw, 2rem);
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-top: 30px;
+    margin-bottom: 10px;
+  }
+  .panel-tag {
+    font-family: var(--font);
+    font-size: 1.2rem;
+    letter-spacing: 0.015em;
+    line-height: 1.3;
+    color: #ffffff;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .panel-b {
+    font-family: var(--font);
+    font-size: 1.2rem;
+    letter-spacing: 0.015em;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.44);
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .panel-b::before {
+    content: '—'; position: absolute; left: 0;
+    color: rgba(255,255,255,0.22); font-size: 10px; top: 3px;
+  }
+
+  .hint {
+    padding: 1.4vh 0 2vh;
+    text-align: center;
+    font-family: var(--font);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.18);
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 class="title">Principales países productores de moda</h1>
+  <p class="description">
+    La producción textil mundial se concentra en polos estratégicos que combinan costes, escala, especialización y proximidad al mercado. Clic sobre cada punto para ver el perfil.
+  </p>
+  <div class="globe-wrap"><canvas id="gc"></canvas></div>
+  <p class="hint">Arrastra para rotar · Clic en un punto para ver el perfil</p>
+</div>
+
+<div class="panel" id="panel">
+  <span class="panel-x" id="px">✕</span>
+  <div class="panel-name" id="pn"></div>
+  <div class="panel-tag"  id="pt"></div>
+  <div id="pb"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var TAU = Math.PI * 2;
+
+  /* ── Countries ─────────────────────────────────────────────── */
+  var C = [
+    { name:'China',     lat:35,   lon:104,  tag:'Ideal para marcas que buscan eficiencia, escala y control del proceso completo.',         b:['Integración total de la cadena (fibra → tejido → confección → logística)','Alta capacidad productiva + avance en automatización'] },
+    { name:'Bangladés', lat:23.7, lon:90.4, tag:'Clave para modelos de negocio basados en volumen y precio accesible.',                   b:['Especialización en grandes volúmenes (fast fashion)','Costes competitivos'] },
+    { name:'Vietnam',   lat:14,   lon:108,  tag:'Alternativa estratégica a China para marcas que buscan calidad con buen coste.',         b:['Crecimiento en prendas técnicas y deportivas','Mano de obra cualificada y estabilidad'] },
+    { name:'India',     lat:20,   lon:77,   tag:'Ideal para colecciones con valor cultural, diferenciación y materiales naturales.',      b:['Gran productor de algodón','Técnicas artesanales (bordados, estampados)'] },
+    { name:'Turquía',   lat:39,   lon:35,   tag:'Perfecto para marcas que necesitan reducir tiempos y reaccionar rápido a tendencias.',   b:['Producción cercana al mercado europeo','Especialización en denim, punto y algodón'] },
+    { name:'Pakistán',  lat:30,   lon:70,   tag:'Partner competitivo para básicos de volumen con fuerte base en algodón.',                b:['Producción de básicos y textil hogar','Alta capacidad en prendas funcionales'] },
+    { name:'Portugal',  lat:39.5, lon:-8,   tag:'Muy utilizado por marcas europeas mid-high que buscan calidad y rapidez.',              b:['Especialización en prendas premium (punto, camisetas, sudaderas)','Producción más sostenible y controlada'] },
+    { name:'España',    lat:40,   lon:-4,   tag:'Centro clave de toma de decisiones y gestión de marca, más que de fabricación.',        b:['No es gran productor, pero sí hub estratégico','Fuerte en diseño, desarrollo, control de calidad y distribución'] },
+    { name:'Italia',    lat:42.8, lon:12.8, tag:'Producción como elemento de posicionamiento en marcas de lujo y alta gama.',            b:['Referente global en tejidos premium, sastrería, marroquinería','Alto valor percibido ("Made in Italy")'] }
+  ];
+
+  /* ── Land polygons [lat,lon] — slightly more detail ────────── */
+  var LAND = [
+    // Africa
+    [[-34,18],[-35,22],[-35,30],[-28,34],[-12,40],[-5,40],[0,42],[5,42],[11,44],[15,42],[18,38],[22,37],[26,33],[30,32],[34,34],[37,34],[37,10],[35,5],[30,-8],[25,-15],[15,-17],[5,-15],[-2,-10],[-5,-8],[-10,-8],[-18,12],[-25,15],[-30,17],[-34,18]],
+    // Europe mainland
+    [[71,28],[68,18],[65,14],[62,5],[58,4],[55,8],[54,14],[52,14],[50,14],[48,17],[46,17],[46,14],[44,15],[42,14],[42,3],[40,3],[36,-6],[36,-9],[38,-9],[40,-8],[42,-8],[43,3],[44,8],[44,14],[44,20],[44,28],[48,28],[50,30],[55,24],[60,25],[65,25],[68,32],[71,28]],
+    // Iberian peninsula (more coast detail)
+    [[44,3],[44,0],[43,-2],[42,-8],[40,-8],[38,-8],[37,-8],[36,-6],[36,-5],[37,-1],[37,0],[38,0],[40,3],[43,2],[44,3]],
+    // Italy boot (more accurate)
+    [[45.5,7],[46,8],[46,12],[45.5,13],[44,14],[43,14],[42,14],[40,16],[38,14],[37.2,15],[37,15.6],[38,16],[38.5,16],[39,18],[40,18],[41,18],[42,16],[43,14],[44,14],[45.5,10],[45.5,7]],
+    // Turkey (standalone — Anatolian peninsula)
+    [[42,26],[41.5,28],[41.5,30],[42,32],[42,36],[41,38],[40,40],[38,44],[37,44],[36.5,42],[36,40],[36,36],[36.5,34],[36,30],[36,28],[36.5,26],[38,26],[40,26],[42,26]],
+    // Middle East / Arabia (without Turkey)
+    [[42,44],[38,44],[36,44],[36,54],[28,56],[22,60],[15,42],[12,44],[15,45],[22,60],[30,60],[35,60],[40,50],[44,40],[42,44]],
+    // Pakistan + Afghanistan
+    [[38,74],[35,60],[30,60],[25,60],[25,62],[25,66],[24,68],[26,68],[30,68],[35,70],[38,74]],
+    // India (more detail)
+    [[24,68],[26,70],[28,72],[30,76],[30,78],[26,88],[22,92],[21,92],[20,86],[16,80],[12,80],[10,78],[8,77],[8,78],[10,80],[14,80],[18,72],[20,72],[22,70],[24,68]],
+    // SE Asia peninsula (more detail)
+    [[26,98],[24,100],[22,100],[20,100],[18,104],[16,108],[14,108],[12,109],[10,107],[10,105],[10,102],[8,100],[5,103],[5,100],[8,99],[10,99],[14,99],[18,100],[20,100],[24,100],[26,98]],
+    // SE Asia islands (Sumatra/Java)
+    [[-6,106],[-8,113],[-8,116],[-6,116],[-2,114],[2,106],[4,100],[2,98],[0,98],[2,96],[-6,106]],
+    // Borneo
+    [[7,116],[7,118],[4,118],[1,118],[0,117],[-2,116],[-4,116],[-4,114],[0,110],[4,110],[6,116],[7,116]],
+    // China / East Asia (more coast detail)
+    [[50,88],[44,78],[40,72],[38,74],[35,70],[30,68],[28,97],[26,98],[22,100],[20,106],[20,110],[22,114],[25,120],[30,122],[32,122],[36,120],[38,122],[40,122],[42,130],[38,140],[40,140],[44,136],[48,136],[52,140],[55,130],[56,118],[55,110],[50,90],[50,88]],
+    // Korean peninsula
+    [[38,126],[36,126],[34,126],[34,128],[36,130],[38,130],[40,128],[38,126]],
+    // Japan
+    [[31,130],[34,130],[36,136],[38,141],[42,142],[44,144],[42,142],[40,140],[38,140],[36,136],[34,136],[32,132],[31,130]],
+    // North America
+    [[72,-80],[72,-100],[72,-120],[66,-165],[55,-165],[50,-126],[46,-124],[40,-124],[36,-122],[30,-116],[22,-106],[16,-90],[15,-88],[20,-87],[24,-80],[30,-80],[34,-76],[40,-74],[44,-74],[48,-70],[50,-66],[55,-60],[60,-64],[64,-70],[70,-78],[72,-80]],
+    // Florida + Caribbean hint
+    [[30,-80],[26,-80],[24,-80],[24,-82],[26,-82],[30,-80]],
+    // Central America
+    [[22,-87],[18,-90],[14,-88],[10,-84],[8,-78],[10,-76],[14,-82],[18,-84],[22,-87]],
+    // South America (more detail)
+    [[12,-72],[10,-62],[6,-52],[2,-50],[0,-50],[-2,-44],[-5,-36],[-15,-40],[-25,-44],[-35,-56],[-40,-62],[-50,-66],[-55,-65],[-55,-70],[-46,-66],[-40,-65],[-28,-70],[-18,-70],[-5,-80],[2,-78],[5,-77],[10,-76],[12,-72]],
+    // Australia (more coast)
+    [[-15,128],[-14,132],[-14,136],[-16,138],[-18,140],[-20,148],[-28,153],[-36,150],[-38,147],[-38,143],[-38,141],[-35,136],[-32,134],[-30,116],[-25,114],[-22,114],[-18,122],[-16,124],[-15,128]],
+    // New Zealand (North Island rough)
+    [[-36,174],[-38,175],[-41,175],[-42,174],[-40,172],[-37,175],[-36,174]],
+    // Greenland
+    [[76,-18],[78,-22],[82,-32],[83,-46],[80,-60],[76,-66],[72,-52],[68,-24],[70,-22],[76,-18]],
+    // Scandinavia (better)
+    [[71,28],[71,22],[69,18],[68,14],[66,14],[64,12],[62,5],[58,5],[56,8],[58,10],[60,12],[62,14],[64,16],[66,18],[68,20],[71,28]],
+    // British Isles
+    [[58,-5],[56,-5],[54,-3],[52,-3],[50,-5],[50,-3],[50,0],[52,2],[54,2],[56,2],[58,0],[58,-5]],
+    // Madagascar
+    [[-12,44],[-14,48],[-18,48],[-24,46],[-26,44],[-22,44],[-14,44],[-12,44]],
+    // Sri Lanka
+    [[7,80],[6,80],[6,81],[8,81],[10,80],[7,80]],
+    // Philippines rough
+    [[10,118],[12,122],[14,122],[16,122],[18,122],[16,120],[14,120],[12,124],[10,125],[8,124],[10,122],[10,118]]
+  ];
+
+  /* ── Build offscreen land mask ─────────────────────────────── */
+  var MW = 1440, MH = 720; /* 4px per degree for better accuracy */
+  var mc = document.createElement('canvas');
+  mc.width = MW; mc.height = MH;
+  var mctx = mc.getContext('2d');
+  mctx.fillStyle = '#000'; mctx.fillRect(0, 0, MW, MH);
+  mctx.fillStyle = '#fff';
+  for (var pi = 0; pi < LAND.length; pi++) {
+    var poly = LAND[pi];
+    mctx.beginPath();
+    for (var vi = 0; vi < poly.length; vi++) {
+      var mlat = poly[vi][0], mlon = poly[vi][1];
+      var mpx = (mlon + 180) / 360 * MW;
+      var mpy = (90 - mlat) / 180 * MH;
+      if (vi === 0) mctx.moveTo(mpx, mpy); else mctx.lineTo(mpx, mpy);
+    }
+    mctx.closePath(); mctx.fill();
+  }
+  var mdata = mctx.getImageData(0, 0, MW, MH).data;
+
+  function isLand(lat, lon) {
+    while (lon < -180) lon += 360;
+    while (lon >= 180)  lon -= 360;
+    var px = Math.max(0, Math.min(MW - 1, Math.round((lon + 180) / 360 * MW)));
+    var py = Math.max(0, Math.min(MH - 1, Math.round((90 - lat) / 180 * MH)));
+    return mdata[(py * MW + px) * 4] > 128;
+  }
+
+  /* ── Build dot grid (equal arc spacing on sphere) ──────────── */
+  var STEP = 1.3;
+  var dots = [];
+  for (var dlat = -80; dlat <= 80; dlat += STEP) {
+    var cosL    = Math.abs(Math.cos(dlat * Math.PI / 180));
+    var lonStep = Math.min(STEP / Math.max(cosL, 0.06), 18);
+    for (var dlon = -180; dlon < 180; dlon += lonStep) {
+      if (isLand(dlat, dlon)) dots.push([dlat, dlon]);
+    }
+  }
+
+  /* ── Canvas ─────────────────────────────────────────────────── */
+  var canvas = document.getElementById('gc');
+  var ctx    = canvas.getContext('2d');
+  var W, H, CX, CY, R;
+
+  function resize() {
+    var wrap = canvas.parentElement;
+    var ww   = wrap.offsetWidth  || window.innerWidth;
+    var wh   = wrap.offsetHeight || window.innerHeight * 0.58;
+    R  = Math.min(ww, wh) * 0.46;
+    var sz = Math.round(R * 2 + 20);
+    W = canvas.width  = sz;
+    H = canvas.height = sz;
+    CX = W * 0.50;
+    CY = H * 0.50;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ── State ──────────────────────────────────────────────────── */
+  var rotY = -55 * Math.PI / 180;
+  var rotX = -18 * Math.PI / 180;
+  var velX = 0, velY = 0;
+  var autoR = true, drag = false;
+  var lmx = 0, lmy = 0, moved = false;
+  var hov = -1, sel = -1;
+  var projC = [], dotP = [];
+  var pulse = 0;
+  /* per-country animated hover progress 0→1 */
+  var hovAnim = [];
+  for (var _i = 0; _i < C.length; _i++) hovAnim.push(0);
+  /* pill bounding boxes for hit testing: { ci, px, py, pw, ph } */
+  var pillBoxes = [];
+
+  /* ── Projection ─────────────────────────────────────────────── */
+  function proj(lat, lon) {
+    var phi = lat * Math.PI / 180, theta = lon * Math.PI / 180;
+    var x = Math.cos(phi) * Math.sin(theta);
+    var y = Math.sin(phi);
+    var z = Math.cos(phi) * Math.cos(theta);
+    var x1 =  x * Math.cos(rotY) + z * Math.sin(rotY);
+    var z1 = -x * Math.sin(rotY) + z * Math.cos(rotY);
+    var y2 =  y * Math.cos(rotX) - z1 * Math.sin(rotX);
+    var z2 =  y * Math.sin(rotX) + z1 * Math.cos(rotX);
+    return { sx: x1 * R + CX, sy: -y2 * R + CY, z: z2 };
+  }
+
+  /* ── Pill label ─────────────────────────────────────────────── */
+  /* ha: hover animation progress 0–1 (shared for hover + selected) */
+  function drawPill(sx, sy, text, dotR, alpha, ha, ci) {
+    if (alpha < 0.04) return;
+    var scale = 1 + ha * 0.12;
+    var fs    = Math.max(11, R * 0.048) * scale;
+    var padH  = Math.max(9,  fs * 0.55);
+    var padV  = Math.max(6,  fs * 0.42);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font        = 'bold ' + fs + 'px BaltoBold, "Helvetica Neue", Helvetica, Arial, sans-serif';
+    ctx.textAlign   = 'center';
+    var tw = ctx.measureText(text).width;
+    var pw = tw + padH * 2;
+    var ph = fs + padV * 2;
+    var rad = ph / 2;
+    var px = sx - pw / 2;
+    var py = sy - dotR - 8 - ph;
+
+    /* store bounding box for hit testing */
+    if (ci !== undefined) {
+      pillBoxes[ci] = { px: px, py: py, pw: pw, ph: ph };
+    }
+
+    /* white glow on hover/selected */
+    if (ha > 0.02) {
+      ctx.shadowColor = 'rgba(255,255,255,0.55)';
+      ctx.shadowBlur  = ha * 22;
+    }
+
+    /* background — interpolate opacity 0.78 → 1 */
+    ctx.beginPath();
+    ctx.moveTo(px + rad, py);
+    ctx.lineTo(px + pw - rad, py);
+    ctx.arcTo(px + pw, py, px + pw, py + rad, rad);
+    ctx.lineTo(px + pw, py + ph - rad);
+    ctx.arcTo(px + pw, py + ph, px + pw - rad, py + ph, rad);
+    ctx.lineTo(px + rad, py + ph);
+    ctx.arcTo(px, py + ph, px, py + ph - rad, rad);
+    ctx.lineTo(px, py + rad);
+    ctx.arcTo(px, py, px + rad, py, rad);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,' + (0.78 + ha * 0.22) + ')';
+    ctx.fill();
+
+    /* reset shadow before text */
+    ctx.shadowBlur = 0;
+
+    /* text — centrado con padding simétrico */
+    ctx.fillStyle   = '#111';
+    ctx.globalAlpha = alpha;
+    ctx.fillText(text, sx, py + padV + fs * 0.78);
+    ctx.restore();
+  }
+
+  /* ── Draw ───────────────────────────────────────────────────── */
+  function draw(ts) {
+    pulse = ts * 0.001;
+    ctx.clearRect(0, 0, W, H);
+
+    /* atmosphere */
+    var ag = ctx.createRadialGradient(CX, CY, R * 0.86, CX, CY, R * 1.14);
+    ag.addColorStop(0, 'rgba(55,90,190,0.14)');
+    ag.addColorStop(1, 'rgba(20,40,110,0)');
+    ctx.beginPath(); ctx.arc(CX, CY, R * 1.14, 0, TAU);
+    ctx.fillStyle = ag; ctx.fill();
+
+    /* ocean */
+    var og = ctx.createRadialGradient(CX - R*0.28, CY - R*0.28, R*0.04, CX, CY, R);
+    og.addColorStop(0,    '#131c2c');
+    og.addColorStop(0.65, '#0c1220');
+    og.addColorStop(1,    '#070b16');
+    ctx.beginPath(); ctx.arc(CX, CY, R, 0, TAU);
+    ctx.fillStyle = og; ctx.fill();
+
+    /* dots — 3 depth layers, clipped to sphere */
+    var dr = Math.max(0.9, R * 0.0052);
+
+    if (dotP.length !== dots.length) dotP = new Array(dots.length);
+    for (var i = 0; i < dots.length; i++) dotP[i] = proj(dots[i][0], dots[i][1]);
+
+    ctx.save();
+    ctx.beginPath(); ctx.arc(CX, CY, R - 0.5, 0, TAU); ctx.clip();
+
+    ctx.beginPath();
+    for (var i = 0; i < dots.length; i++) {
+      var d = dotP[i]; if (d.z < 0.42) continue;
+      ctx.moveTo(d.sx + dr, d.sy); ctx.arc(d.sx, d.sy, dr, 0, TAU);
+    }
+    ctx.fillStyle = 'rgba(208,218,232,0.90)'; ctx.fill();
+
+    ctx.beginPath();
+    for (var i = 0; i < dots.length; i++) {
+      var d = dotP[i]; if (d.z < 0.10 || d.z >= 0.42) continue;
+      ctx.moveTo(d.sx + dr, d.sy); ctx.arc(d.sx, d.sy, dr, 0, TAU);
+    }
+    ctx.fillStyle = 'rgba(208,218,232,0.44)'; ctx.fill();
+
+    ctx.beginPath();
+    for (var i = 0; i < dots.length; i++) {
+      var d = dotP[i]; if (d.z < -0.06 || d.z >= 0.10) continue;
+      ctx.moveTo(d.sx + dr, d.sy); ctx.arc(d.sx, d.sy, dr, 0, TAU);
+    }
+    ctx.fillStyle = 'rgba(208,218,232,0.13)'; ctx.fill();
+
+    ctx.restore();
+
+    /* specular */
+    ctx.save();
+    ctx.beginPath(); ctx.arc(CX, CY, R, 0, TAU); ctx.clip();
+    var sg = ctx.createRadialGradient(CX - R*0.30, CY - R*0.36, 0, CX, CY, R);
+    sg.addColorStop(0, 'rgba(255,255,255,0.07)');
+    sg.addColorStop(0.5, 'rgba(255,255,255,0.015)');
+    sg.addColorStop(1, 'rgba(0,0,0,0.20)');
+    ctx.fillStyle = sg; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+
+    /* rim */
+    ctx.beginPath(); ctx.arc(CX, CY, R, 0, TAU);
+    ctx.strokeStyle = 'rgba(80,120,210,0.18)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    /* markers */
+    projC = [];
+    var vis = [];
+    for (var ci = 0; ci < C.length; ci++) {
+      var cp = proj(C[ci].lat, C[ci].lon);
+      projC.push(cp);
+      if (cp.z < 0.04) continue;
+      vis.push({ cp: cp, ci: ci });
+    }
+
+    for (var vi = 0; vi < vis.length; vi++) {
+      var v = vis[vi]; var cp = v.cp; var ci = v.ci;
+      var isHov = ci === hov, isSel = ci === sel;
+
+      if (!isSel) {
+        var pt = Math.sin(pulse * 2.1 + ci * 0.9) * 0.5 + 0.5;
+        var pr = R * 0.026 + pt * R * 0.020;
+        var pa = cp.z * (0.26 - pt * 0.20);
+        if (pa > 0.01) {
+          ctx.beginPath(); ctx.arc(cp.sx, cp.sy, pr, 0, TAU);
+          ctx.strokeStyle = 'rgba(255,255,255,' + pa + ')';
+          ctx.lineWidth = 0.7; ctx.stroke();
+        }
+      }
+
+      var gr = R * (isSel ? 0.056 : (isHov ? 0.044 : 0.030));
+      var gg = ctx.createRadialGradient(cp.sx, cp.sy, 0, cp.sx, cp.sy, gr);
+      gg.addColorStop(0, 'rgba(255,255,255,' + (cp.z * (isSel ? 0.36 : 0.18)) + ')');
+      gg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath(); ctx.arc(cp.sx, cp.sy, gr, 0, TAU);
+      ctx.fillStyle = gg; ctx.fill();
+
+      var mr = R * (isSel ? 0.018 : (isHov ? 0.015 : 0.011));
+      ctx.beginPath(); ctx.arc(cp.sx, cp.sy, mr, 0, TAU);
+      ctx.fillStyle = 'rgba(255,255,255,' + Math.min(1, cp.z * 1.6) + ')'; ctx.fill();
+    }
+
+    /* draw pills on top of all dots */
+    pillBoxes = [];
+    for (var vi = 0; vi < vis.length; vi++) {
+      var v = vis[vi]; var cp = v.cp; var ci = v.ci;
+      var isSel = ci === sel;
+      var mr    = R * (isSel ? 0.018 : 0.011);
+      var alpha = Math.min(1, (cp.z + 0.1) * 1.6);
+      drawPill(cp.sx, cp.sy, C[ci].name, mr, alpha, hovAnim[ci], ci);
+    }
+  }
+
+  /* ── Hit test — dot + pill area ────────────────────────────── */
+  function hit(mx2, my2) {
+    /* 1. check pill bounding boxes first (larger target) */
+    for (var i = 0; i < pillBoxes.length; i++) {
+      var b = pillBoxes[i];
+      if (!b) continue;
+      if (mx2 >= b.px && mx2 <= b.px + b.pw && my2 >= b.py && my2 <= b.py + b.ph) return i;
+    }
+    /* 2. check dot circles */
+    var best = -1, bestD = Math.max(15, R * 0.055);
+    for (var i = 0; i < projC.length; i++) {
+      var p = projC[i];
+      if (p.z < 0.04) continue;
+      var d = Math.hypot(mx2 - p.sx, my2 - p.sy);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return best;
+  }
+
+  /* ── Panel ──────────────────────────────────────────────────── */
+  var panel = document.getElementById('panel');
+  var pn    = document.getElementById('pn');
+  var pt    = document.getElementById('pt');
+  var pb    = document.getElementById('pb');
+
+  document.getElementById('px').addEventListener('click', function () {
+    sel = -1; panel.classList.remove('on');
+  });
+
+  function openPanel(i) {
+    var c = C[i];
+    pn.textContent = c.name;
+    pt.textContent = c.tag;
+    pb.innerHTML   = c.b.map(function (x) { return '<div class="panel-b">' + x + '</div>'; }).join('');
+    panel.classList.add('on');
+  }
+
+  /* ── Events ─────────────────────────────────────────────────── */
+  canvas.addEventListener('mousedown', function (e) {
+    drag = true; moved = false; lmx = e.clientX; lmy = e.clientY; velX = 0; velY = 0;
+  });
+
+  window.addEventListener('mousemove', function (e) {
+    if (!drag) {
+      var r = canvas.getBoundingClientRect();
+      var h = hit(e.clientX - r.left, e.clientY - r.top);
+      if (h !== hov) { hov = h; canvas.style.cursor = h >= 0 ? 'pointer' : 'grab'; }
+      return;
+    }
+    var dx = e.clientX - lmx, dy = e.clientY - lmy;
+    /* drag right → world moves right; drag down → world moves down */
+    rotY += dx * 0.005;
+    rotX += dy * 0.005;
+    rotX = Math.max(-1.1, Math.min(1.1, rotX));
+    velX =  dx * 0.005;
+    velY =  dy * 0.005;
+    lmx = e.clientX; lmy = e.clientY;
+    autoR = false;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+  });
+
+  window.addEventListener('mouseup', function (e) {
+    if (!drag) return;
+    drag = false;
+    if (!moved) {
+      var r = canvas.getBoundingClientRect();
+      var h = hit(e.clientX - r.left, e.clientY - r.top);
+      if (h >= 0) {
+        sel = h === sel ? -1 : h;
+        if (sel >= 0) { openPanel(sel); autoR = false; }
+        else panel.classList.remove('on');
+      } else {
+        sel = -1; panel.classList.remove('on');
+      }
+    }
+  });
+
+  canvas.addEventListener('mouseleave', function () { hov = -1; });
+
+  /* ── Loop ───────────────────────────────────────────────────── */
+  function tick(ts) {
+    if (!drag) {
+      if (autoR) {
+        rotY += 0.0020;
+      } else {
+        rotY += velX; rotX += velY;
+        velX *= 0.93; velY *= 0.93;
+        if (Math.abs(velX) < 0.0002 && Math.abs(velY) < 0.0002) autoR = true;
+      }
+    }
+    /* animate per-country hover progress toward target */
+    for (var ai = 0; ai < C.length; ai++) {
+      var target = (ai === hov || ai === sel) ? 1 : 0;
+      hovAnim[ai] += (target - hovAnim[ai]) * 0.14;
+    }
+    draw(ts);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+})();
+</script>
+</body>
+</html>
